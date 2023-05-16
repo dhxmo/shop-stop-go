@@ -13,6 +13,7 @@ func API(e *gin.Engine) {
 
 	v1 := e.Group("api/v1")
 	v1.Use(middlewares.JWT())
+	v1.Use(middlewares.ErrorHandler())
 
 	{
 		productService := service.NewProductSvc()

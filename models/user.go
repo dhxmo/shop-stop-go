@@ -15,10 +15,9 @@ type User struct {
 }
 
 type UserResponse struct {
-	UUID     string      `json:"uuid"`
-	Username string      `json:"username"`
-	Email    string      `json:"email"`
-	Token    interface{} `json:"token,omitempty"`
+	UUID     string `json:"uuid"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
 }
 
 type RegisterRequest struct {

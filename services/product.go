@@ -1,7 +1,6 @@
 package service
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/dhxmo/shop-stop-go/models"
@@ -30,7 +29,7 @@ func NewProductSvc() ProductService {
 func (ps *ProductSvc) GetProducts(c *gin.Context) {
 	products, err := ps.repo.GetProducts()
 	if err != nil {
-		log.Fatal(err.Error())
+		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
 		return
 	}
@@ -42,7 +41,7 @@ func (ps *ProductSvc) GetProductByID(c *gin.Context) {
 
 	product, err := ps.repo.GetProductByID(productID)
 	if err != nil {
-		log.Fatal(err.Error())
+		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
 		return
 	}
@@ -53,7 +52,7 @@ func (ps *ProductSvc) CreateProduct(c *gin.Context) {
 	var req models.ProductRequest
 
 	if err := c.Bind(&req); err != nil {
-		log.Fatal("Failed to parse request body: ", err)
+		c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -62,14 +61,14 @@ func (ps *ProductSvc) CreateProduct(c *gin.Context) {
 	err := validate.Struct(req)
 
 	if err != nil {
-		log.Fatal("Request body is invalid: ", err.Error())
+		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
 		return
 	}
 
 	product, err := ps.repo.CreateProduct(&req)
 	if err != nil {
-		log.Fatal("Failed to create product", err.Error())
+		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
 		return
 	}
@@ -82,14 +81,14 @@ func (ps *ProductSvc) UpdateProduct(c *gin.Context) {
 	var req models.ProductRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		log.Fatal("Failed to parse request body: ", err)
+		c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	products, err := ps.repo.UpdateProduct(uuid, &req)
 	if err != nil {
-		log.Fatal("Failed to update product: ", err)
+		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
 		return
 	}
@@ -107,7 +106,7 @@ func (ps *ProductSvc) GetProductByCategory(c *gin.Context) {
 
 	products, err := ps.repo.GetProductByCategory(categoryUUID, active)
 	if err != nil {
-		log.Fatal("Failed to get products: ", err)
+		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
 		return
 	}

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/dhxmo/shop-stop-go/models"
@@ -29,7 +28,7 @@ func NewCategorySvc() CategoryService {
 func (ps *CategorySvc) GetCategories(c *gin.Context) {
 	categories, err := ps.repo.GetCategories()
 	if err != nil {
-		log.Fatal(err.Error())
+		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
 		return
 	}
@@ -41,7 +40,7 @@ func (ps *CategorySvc) GetCategoryByID(c *gin.Context) {
 
 	category, err := ps.repo.GetCategoryByID(categoryID)
 	if err != nil {
-		log.Fatal(err.Error())
+		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
 		return
 	}
@@ -52,7 +51,7 @@ func (ps *CategorySvc) CreateCategory(c *gin.Context) {
 	var req models.CategoryRequest
 
 	if err := c.Bind(&req); err != nil {
-		log.Fatal("Failed to parse request body: ", err)
+		c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -61,14 +60,14 @@ func (ps *CategorySvc) CreateCategory(c *gin.Context) {
 	err := validate.Struct(req)
 
 	if err != nil {
-		log.Fatal("Request body is invalid: ", err.Error())
+		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
 		return
 	}
 
 	category, err := ps.repo.CreateCategory(&req)
 	if err != nil {
-		log.Fatal("Failed to create product", err.Error())
+		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
 		return
 	}
@@ -81,14 +80,14 @@ func (ps *CategorySvc) UpdateCategory(c *gin.Context) {
 	var req models.CategoryRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		log.Fatal("Failed to parse request body: ", err)
+		c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	category, err := ps.repo.UpdateCategory(uuid, &req)
 	if err != nil {
-		log.Fatal("Failed to update product: ", err)
+		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
 		return
 	}
