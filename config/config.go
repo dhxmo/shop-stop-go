@@ -6,10 +6,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-// type Schema struct {
-// 	Database  `mapstructure:"database"`
-// }
-
 type Config struct {
 	DBDriver      string `mapstructure:"DB_DRIVER"`
 	DBSource      string `mapstructure:"DB_SOURCE"`
