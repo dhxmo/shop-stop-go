@@ -11,6 +11,7 @@ type ProductRepository interface {
 	GetProductByID(uuid string) (*models.ProductResponse, error)
 	CreateProduct(req *models.ProductRequest) (*models.ProductResponse, error)
 	UpdateProduct(uuid string, req *models.ProductRequest) (*models.ProductResponse, error)
+	GetProductByCategory(uuid string, active bool) (*[]models.ProductResponse, error)
 }
 
 type ProductRepo struct {
@@ -33,6 +34,17 @@ func (r *ProductRepo) GetProducts() (*[]models.ProductResponse, error) {
 	var res []models.ProductResponse
 	copier.Copy(&res, &products)
 
+	return &res, nil
+}
+
+func (r *ProductRepo) GetProductByCategory(categoryUUID string, active bool) (*[]models.ProductResponse, error) {
+	var products []models.Product
+	if err := config.DB.Where("active = ? AND category_uuid = ?", active, categoryUUID).Find(&products).Error; err != nil {
+		return nil, err
+	}
+
+	var res []models.ProductResponse
+	copier.Copy(&res, &products)
 	return &res, nil
 }
 

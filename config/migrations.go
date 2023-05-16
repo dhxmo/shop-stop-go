@@ -22,4 +22,7 @@ func Migrate() {
 	User := models.User{}
 
 	db.AutoMigrate(&Product, &Category, &CheckoutOrder, &Order, &User)
+	db.Model(&Product).AddForeignKey("category_uuid", "categories(uuid)", "RESTRICT", "RESTRICT")
+
+	log.Println("successful migrated tables and added foreign keys")
 }

@@ -13,5 +13,12 @@ func API(e *gin.Engine) {
 		v1.GET("/products/:uuid", productService.GetProductByID)
 		v1.POST("/product", productService.CreateProduct)
 		v1.PUT("/product/:uuid", productService.UpdateProduct)
+
+		categoryService := service.NewCategorySvc()
+		v1.GET("/categories", categoryService.GetCategories)
+		v1.POST("/categories", categoryService.CreateCategory)
+		v1.GET("/categories/:uuid", categoryService.GetCategoryByID)
+		v1.GET("/categories/:uuid/products", productService.GetProductByCategory)
+		v1.PUT("/categories/:uuid", categoryService.UpdateCategory)
 	}
 }

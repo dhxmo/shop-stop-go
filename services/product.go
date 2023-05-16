@@ -9,7 +9,6 @@ import (
 	"github.com/dhxmo/shop-stop-go/repositories"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
-	"github.com/jinzhu/copier"
 )
 
 type ProductService interface {
@@ -17,6 +16,7 @@ type ProductService interface {
 	GetProductByID(c *gin.Context)
 	CreateProduct(c *gin.Context)
 	UpdateProduct(c *gin.Context)
+	GetProductByCategory(c *gin.Context)
 }
 
 type ProductSvc struct {
@@ -74,9 +74,7 @@ func (ps *ProductSvc) CreateProduct(c *gin.Context) {
 		return
 	}
 
-	var res models.ProductResponse
-	copier.Copy(&res, &product)
-	c.JSON(http.StatusOK, utils.Response(res, "OK", ""))
+	c.JSON(http.StatusOK, utils.Response(product, "OK", ""))
 }
 
 func (ps *ProductSvc) UpdateProduct(c *gin.Context) {
@@ -96,7 +94,23 @@ func (ps *ProductSvc) UpdateProduct(c *gin.Context) {
 		return
 	}
 
-	var res models.ProductResponse
-	copier.Copy(&res, &products)
-	c.JSON(http.StatusOK, utils.Response(res, "OK", ""))
+	c.JSON(http.StatusOK, utils.Response(products, "OK", ""))
+}
+
+func (ps *ProductSvc) GetProductByCategory(c *gin.Context) {
+	categoryUUID := c.Param("uuid")
+	activeParam := c.Query("active")
+	active := true
+	if activeParam == "false" {
+		active = false
+	}
+
+	products, err := ps.repo.GetProductByCategory(categoryUUID, active)
+	if err != nil {
+		log.Fatal("Failed to get products: ", err)
+		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
+		return
+	}
+
+	c.JSON(http.StatusOK, utils.Response(products, "OK", ""))
 }

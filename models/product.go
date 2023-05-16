@@ -10,6 +10,7 @@ type Product struct {
 	Name         string `json:"name"`
 	Description  string `json:"description"`
 	CategoryUUID string `json:"category_uuid"`
+	Active       bool   `gorm:"default:true"`
 
 	gorm.Model
 }
@@ -19,16 +20,13 @@ type ProductResponse struct {
 	Name         string `json:"name"`
 	Description  string `json:"description"`
 	CategoryUUID string `json:"category_uuid"`
-
-	gorm.Model
+	Active       bool   `json:"active"`
 }
 
 type ProductRequest struct {
-	Name         string `json:"name"`
-	Description  string `json:"description"`
-	CategoryUUID string `json:"category_uuid"`
-
-	gorm.Model
+	Name         string `json:"name" validate:"required"`
+	Description  string `json:"description,omitempty"`
+	CategoryUUID string `json:"category_uuid" validate:"required"`
 }
 
 func (p *Product) BeforeCreate(tx *gorm.DB) (err error) {
