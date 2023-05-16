@@ -3,7 +3,7 @@ package config
 import (
 	"log"
 
-	"github.com/dhxmo/shop-stop-go/models"
+	models "github.com/dhxmo/shop-stop-go/models"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/lib/pq"
 )

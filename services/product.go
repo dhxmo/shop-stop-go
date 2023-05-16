@@ -4,14 +4,19 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/dhxmo/shop-stop-go/models"
 	"github.com/dhxmo/shop-stop-go/pkg/utils"
 	"github.com/dhxmo/shop-stop-go/repositories"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator"
+	"github.com/jinzhu/copier"
 )
 
 type ProductService interface {
 	GetProducts(c *gin.Context)
 	GetProductByID(c *gin.Context)
+	CreateProduct(c *gin.Context)
+	UpdateProduct(c *gin.Context)
 }
 
 type ProductSvc struct {
@@ -42,4 +47,56 @@ func (ps *ProductSvc) GetProductByID(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, utils.Response(product, "ok", ""))
+}
+
+func (ps *ProductSvc) CreateProduct(c *gin.Context) {
+	var req models.ProductRequest
+
+	if err := c.Bind(&req); err != nil {
+		log.Fatal("Failed to parse request body: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	validate := validator.New()
+	err := validate.Struct(req)
+
+	if err != nil {
+		log.Fatal("Request body is invalid: ", err.Error())
+		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
+		return
+	}
+
+	product, err := ps.repo.CreateProduct(&req)
+	if err != nil {
+		log.Fatal("Failed to create product", err.Error())
+		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
+		return
+	}
+
+	var res models.ProductResponse
+	copier.Copy(&res, &product)
+	c.JSON(http.StatusOK, utils.Response(res, "OK", ""))
+}
+
+func (ps *ProductSvc) UpdateProduct(c *gin.Context) {
+	uuid := c.Param("uuid")
+	var req models.ProductRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Fatal("Failed to parse request body: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	products, err := ps.repo.UpdateProduct(uuid, &req)
+	if err != nil {
+		log.Fatal("Failed to update product: ", err)
+		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
+		return
+	}
+
+	var res models.ProductResponse
+	copier.Copy(&res, &products)
+	c.JSON(http.StatusOK, utils.Response(res, "OK", ""))
 }

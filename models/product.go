@@ -7,7 +7,23 @@ import (
 
 type Product struct {
 	UUID         string `json:"uuid" gorm:"unique;not null;index;primary_key"`
-	Code         string `json:"code" gorm:"unique;not null;index"`
+	Name         string `json:"name"`
+	Description  string `json:"description"`
+	CategoryUUID string `json:"category_uuid"`
+
+	gorm.Model
+}
+
+type ProductResponse struct {
+	UUID         string `json:"uuid" gorm:"unique;not null;index;primary_key"`
+	Name         string `json:"name"`
+	Description  string `json:"description"`
+	CategoryUUID string `json:"category_uuid"`
+
+	gorm.Model
+}
+
+type ProductRequest struct {
 	Name         string `json:"name"`
 	Description  string `json:"description"`
 	CategoryUUID string `json:"category_uuid"`
