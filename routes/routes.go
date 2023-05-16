@@ -6,15 +6,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func API(e *gin.Engine) {
-	userService := service.NewUserSvc()
-	e.POST("/register", userService.Register)
-	e.POST("/login", userService.Login)
+func Routes(e *gin.Engine) {
+	auth := e.Group("auth")
+	{
+		userService := service.NewUserSvc()
+		auth.POST("/register", userService.Register)
+		auth.POST("/login", userService.Login)
+		auth.GET("/users/:uuid", userService.GetUserByID)
+
+	}
 
 	v1 := e.Group("api/v1")
 	v1.Use(middlewares.JWT())
 	v1.Use(middlewares.ErrorHandler())
-
 	{
 		productService := service.NewProductSvc()
 		v1.GET("/products", productService.GetProducts)
@@ -29,6 +33,5 @@ func API(e *gin.Engine) {
 		v1.GET("/categories/:uuid/products", productService.GetProductByCategory)
 		v1.PUT("/categories/:uuid", categoryService.UpdateCategory)
 
-		v1.GET("/users/:uuid", userService.GetUserByID)
 	}
 }

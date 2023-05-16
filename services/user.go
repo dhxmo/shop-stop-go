@@ -7,7 +7,6 @@ import (
 	"github.com/dhxmo/shop-stop-go/pkg/utils"
 	"github.com/dhxmo/shop-stop-go/repositories"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator"
 	"github.com/jinzhu/copier"
 )
 
@@ -25,14 +24,16 @@ func NewUserSvc() UserService {
 	return &UserSvc{repo: repositories.NewUserRepository()}
 }
 
-// func (us *UserSvc) validate(r models.RegisterRequest) bool {
-// 	return utils.Validate(
-// 		[]utils.Validation{
-// 			{Value: r.Username, Valid: "username"},
-// 			{Value: r.Email, Valid: "email"},
-// 			{Value: r.Password, Valid: "password"},
-// 		})
-// }
+func (us *UserSvc) validate(r models.RegisterRequest) (bool, error) {
+	val := utils.Validate(
+		[]utils.Validation{
+			{Value: r.Username, Valid: "username"},
+			{Value: r.Email, Valid: "email"},
+			{Value: r.Password, Valid: "password"},
+		})
+
+	return val, nil
+}
 
 func (us *UserSvc) Login(c *gin.Context) {
 	var req models.LoginRequest
@@ -70,10 +71,10 @@ func (us *UserSvc) Register(c *gin.Context) {
 		return
 	}
 
-	validate := validator.New()
-	if err := validate.Struct(reqBody); err != nil {
+	valid, err := us.validate(reqBody)
+	if !valid || err != nil {
 		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, "", err.Error()))
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Request body is invalid"})
 		return
 	}
 

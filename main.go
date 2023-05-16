@@ -23,7 +23,7 @@ func main() {
 
 	engine := gin.Default()
 
-	route.API(engine)
+	route.Routes(engine)
 
 	srv := &http.Server{
 		Addr:    ":8080",
