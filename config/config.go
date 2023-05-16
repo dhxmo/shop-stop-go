@@ -1,7 +1,7 @@
 package config
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/spf13/viper"
 )
@@ -21,13 +21,13 @@ func LoadConfig(path string) (config Config, err error) {
 
 	err = viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+		log.Fatalf("Fatal error config file: %s \n", err)
 
 	}
 
 	err = viper.Unmarshal(&config)
 	if err != nil {
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+		log.Fatalf("Fatal error config file: %s \n", err)
 	}
 	return
 
