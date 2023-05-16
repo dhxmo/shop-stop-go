@@ -21,20 +21,35 @@ func NewProductRepository() ProductRepository {
 }
 
 func (r *ProductRepo) GetProducts() (*[]models.ProductResponse, error) {
-	var products []models.ProductResponse
-	if config.DB.Find(&products).RecordNotFound() {
-		return nil, nil
+	var products []models.Product
+	if err := config.DB.Find(&products).Error; err != nil {
+		return nil, err
 	}
 
-	return &products, nil
+	if len(products) == 0 {
+		return &[]models.ProductResponse{}, nil
+	}
+
+	var res []models.ProductResponse
+	copier.Copy(&res, &products)
+
+	return &res, nil
 }
 
 func (r *ProductRepo) GetProductByID(uuid string) (*models.ProductResponse, error) {
-	var product models.ProductResponse
-	if config.DB.Where("uuid = ?", uuid).Find(&product).RecordNotFound() {
+	var product models.Product
+	if err := config.DB.Where("uuid = ?", uuid).Find(&product).Error; err != nil {
+		return nil, err
+	}
+
+	if product.UUID == "" {
 		return nil, nil
 	}
-	return &product, nil
+
+	var res models.ProductResponse
+	copier.Copy(&res, &product)
+
+	return &res, nil
 }
 
 func (r *ProductRepo) CreateProduct(req *models.ProductRequest) (*models.ProductResponse, error) {
