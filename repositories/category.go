@@ -4,6 +4,7 @@ import (
 	"github.com/dhxmo/shop-stop-go/config"
 	"github.com/dhxmo/shop-stop-go/models"
 	"github.com/jinzhu/copier"
+	"github.com/jinzhu/gorm"
 )
 
 type CategoryRepository interface {
@@ -14,15 +15,16 @@ type CategoryRepository interface {
 }
 
 type CategoryRepo struct {
+	db *gorm.DB
 }
 
 func NewCategoryRepository() CategoryRepository {
-	return &CategoryRepo{}
+	return &CategoryRepo{db: config.DB}
 }
 
-func (r *CategoryRepo) GetCategories() (*[]models.CategoryResponse, error) {
+func (cr *CategoryRepo) GetCategories() (*[]models.CategoryResponse, error) {
 	var categories []models.Category
-	if err := config.DB.Find(&categories).Error; err != nil {
+	if err := cr.db.Find(&categories).Error; err != nil {
 		return nil, err
 	}
 
@@ -36,9 +38,9 @@ func (r *CategoryRepo) GetCategories() (*[]models.CategoryResponse, error) {
 	return &res, nil
 }
 
-func (r *CategoryRepo) GetCategoryByID(uuid string) (*models.CategoryResponse, error) {
+func (cr *CategoryRepo) GetCategoryByID(uuid string) (*models.CategoryResponse, error) {
 	var category models.Category
-	if err := config.DB.Where("uuid = ?", uuid).Find(&category).Error; err != nil {
+	if err := cr.db.Where("uuid = ?", uuid).Find(&category).Error; err != nil {
 		return nil, err
 	}
 
@@ -52,11 +54,11 @@ func (r *CategoryRepo) GetCategoryByID(uuid string) (*models.CategoryResponse, e
 	return &res, nil
 }
 
-func (r *CategoryRepo) CreateCategory(req *models.CategoryRequest) (*models.CategoryResponse, error) {
+func (cr *CategoryRepo) CreateCategory(req *models.CategoryRequest) (*models.CategoryResponse, error) {
 	var category models.Category
 
 	copier.Copy(&category, &req)
-	if err := config.DB.Create(&category).Error; err != nil {
+	if err := cr.db.Create(&category).Error; err != nil {
 		return nil, err
 	}
 
@@ -66,10 +68,10 @@ func (r *CategoryRepo) CreateCategory(req *models.CategoryRequest) (*models.Cate
 	return &res, nil
 }
 
-func (r *CategoryRepo) UpdateCategory(uuid string, req *models.CategoryRequest) (*models.CategoryResponse, error) {
+func (cr *CategoryRepo) UpdateCategory(uuid string, req *models.CategoryRequest) (*models.CategoryResponse, error) {
 	var category models.Category
 
-	if err := config.DB.Where("uuid = ?", uuid).First(&category).Error; err != nil {
+	if err := cr.db.Where("uuid = ?", uuid).First(&category).Error; err != nil {
 		return nil, err
 	}
 
@@ -77,7 +79,7 @@ func (r *CategoryRepo) UpdateCategory(uuid string, req *models.CategoryRequest) 
 	category.Description = req.Description
 	category.Active = req.Active
 
-	if err := config.DB.Save(&category).Error; err != nil {
+	if err := cr.db.Save(&category).Error; err != nil {
 		return nil, err
 	}
 

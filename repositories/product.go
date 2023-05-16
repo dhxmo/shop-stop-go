@@ -4,6 +4,7 @@ import (
 	"github.com/dhxmo/shop-stop-go/config"
 	"github.com/dhxmo/shop-stop-go/models"
 	"github.com/jinzhu/copier"
+	"github.com/jinzhu/gorm"
 )
 
 type ProductRepository interface {
@@ -15,15 +16,16 @@ type ProductRepository interface {
 }
 
 type ProductRepo struct {
+	db *gorm.DB
 }
 
 func NewProductRepository() ProductRepository {
-	return &ProductRepo{}
+	return &ProductRepo{db: config.DB}
 }
 
-func (r *ProductRepo) GetProducts() (*[]models.ProductResponse, error) {
+func (pr *ProductRepo) GetProducts() (*[]models.ProductResponse, error) {
 	var products []models.Product
-	if err := config.DB.Find(&products).Error; err != nil {
+	if err := pr.db.Find(&products).Error; err != nil {
 		return nil, err
 	}
 
@@ -37,9 +39,9 @@ func (r *ProductRepo) GetProducts() (*[]models.ProductResponse, error) {
 	return &res, nil
 }
 
-func (r *ProductRepo) GetProductByCategory(categoryUUID string, active bool) (*[]models.ProductResponse, error) {
+func (pr *ProductRepo) GetProductByCategory(categoryUUID string, active bool) (*[]models.ProductResponse, error) {
 	var products []models.Product
-	if err := config.DB.Where("active = ? AND category_uuid = ?", active, categoryUUID).Find(&products).Error; err != nil {
+	if err := pr.db.Where("active = ? AND category_uuid = ?", active, categoryUUID).Find(&products).Error; err != nil {
 		return nil, err
 	}
 
@@ -48,9 +50,9 @@ func (r *ProductRepo) GetProductByCategory(categoryUUID string, active bool) (*[
 	return &res, nil
 }
 
-func (r *ProductRepo) GetProductByID(uuid string) (*models.ProductResponse, error) {
+func (pr *ProductRepo) GetProductByID(uuid string) (*models.ProductResponse, error) {
 	var product models.Product
-	if err := config.DB.Where("uuid = ?", uuid).Find(&product).Error; err != nil {
+	if err := pr.db.Where("uuid = ?", uuid).Find(&product).Error; err != nil {
 		return nil, err
 	}
 
@@ -64,11 +66,11 @@ func (r *ProductRepo) GetProductByID(uuid string) (*models.ProductResponse, erro
 	return &res, nil
 }
 
-func (r *ProductRepo) CreateProduct(req *models.ProductRequest) (*models.ProductResponse, error) {
+func (pr *ProductRepo) CreateProduct(req *models.ProductRequest) (*models.ProductResponse, error) {
 	var product models.Product
 
 	copier.Copy(&product, &req)
-	if err := config.DB.Create(&product).Error; err != nil {
+	if err := pr.db.Create(&product).Error; err != nil {
 		return nil, err
 	}
 
@@ -78,17 +80,17 @@ func (r *ProductRepo) CreateProduct(req *models.ProductRequest) (*models.Product
 	return &res, nil
 }
 
-func (r *ProductRepo) UpdateProduct(uuid string, req *models.ProductRequest) (*models.ProductResponse, error) {
+func (pr *ProductRepo) UpdateProduct(uuid string, req *models.ProductRequest) (*models.ProductResponse, error) {
 	var product models.Product
 
-	if err := config.DB.Where("uuid = ?", uuid).First(&product).Error; err != nil {
+	if err := pr.db.Where("uuid = ?", uuid).First(&product).Error; err != nil {
 		return nil, err
 	}
 
 	product.Name = req.Name
 	product.Description = req.Description
 
-	if err := config.DB.Save(&product).Error; err != nil {
+	if err := pr.db.Save(&product).Error; err != nil {
 		return nil, err
 	}
 
