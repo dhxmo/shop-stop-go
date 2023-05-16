@@ -1,5 +1,15 @@
 package routes
 
-import "github.com/gin-gonic/gin"
+import (
+	service "github.com/dhxmo/shop-stop-go/services"
+	"github.com/gin-gonic/gin"
+)
 
-func API(engine *gin.Engine) {}
+func API(e *gin.Engine) {
+	v1 := e.Group("api/v1")
+	{
+		productService := service.NewProductSvc()
+		v1.GET("/products", productService.GetProducts)
+		v1.GET("/products/:uuid", productService.GetProducts)
+	}
+}

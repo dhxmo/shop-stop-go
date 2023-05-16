@@ -7,6 +7,8 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
+var DB *gorm.DB
+
 func ConnectDB() (*gorm.DB, error) {
 	config, err := LoadConfig(".")
 	if err != nil {
@@ -21,6 +23,8 @@ func ConnectDB() (*gorm.DB, error) {
 	// Set up connection pool
 	conn.DB().SetMaxIdleConns(20)
 	conn.DB().SetMaxOpenConns(200)
+
+	DB = conn
 
 	return conn, err
 }

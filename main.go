@@ -20,6 +20,7 @@ import (
 
 func main() {
 	config.Migrate()
+
 	engine := gin.Default()
 
 	route.API(engine)
