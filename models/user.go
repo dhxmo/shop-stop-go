@@ -10,7 +10,7 @@ type User struct {
 	Username string `json:"username" gorm:"unique;not null;index"`
 	Email    string `json:"email" gorm:"unique;not null;index"`
 	Password string `json:"password"`
-	RoleUUID string `json:"role_uuid`
+	RoleUUID string `json:"role_uuid"`
 
 	gorm.Model
 }
