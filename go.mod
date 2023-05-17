@@ -12,6 +12,7 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/lib/pq v1.1.1
 	github.com/spf13/viper v1.15.0
+	go.uber.org/dig v1.17.0
 	golang.org/x/crypto v0.5.0
 )
 
