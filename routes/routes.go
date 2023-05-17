@@ -1,6 +1,9 @@
 package routes
 
 import (
+	"log"
+
+	"github.com/dhxmo/shop-stop-go/config"
 	"github.com/dhxmo/shop-stop-go/middlewares"
 	service "github.com/dhxmo/shop-stop-go/services"
 	"github.com/gin-gonic/gin"
@@ -19,6 +22,15 @@ func Routes(e *gin.Engine) {
 	v1 := e.Group("api/v1")
 	v1.Use(middlewares.JWT())
 	v1.Use(middlewares.ErrorHandler())
+
+	config, err := config.LoadConfig(".")
+	if err != nil {
+		log.Fatal("cannot load config:", err)
+	}
+
+	if config.Enable {
+		v1.Use(middlewares.Cached())
+	}
 	{
 		productService := service.NewProductSvc()
 		v1.GET("/products", productService.GetProducts)
