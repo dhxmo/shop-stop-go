@@ -27,6 +27,10 @@ type CategoryRequest struct {
 	Active      bool   `json:"active"`
 }
 
+type CategoryQueryRequest struct {
+	Active string `json:"active,omitempty" form:"active"`
+}
+
 func (c *Category) BeforeCreate(tx *gorm.DB) (err error) {
 	c.UUID = uuid.New().String()
 	return nil

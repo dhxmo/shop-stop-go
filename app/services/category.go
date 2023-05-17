@@ -1,6 +1,8 @@
-package service
+package services
 
 import (
+	"context"
+	"log"
 	"net/http"
 
 	"github.com/dhxmo/shop-stop-go/app/models"
@@ -11,7 +13,7 @@ import (
 )
 
 type CategoryService interface {
-	GetCategories(c *gin.Context)
+	GetCategories(ctx context.Context, query models.CategoryQueryRequest) (*[]models.CategoryResponse, error)
 	GetCategoryByID(c *gin.Context)
 	CreateCategory(c *gin.Context)
 	UpdateCategory(c *gin.Context)
@@ -25,14 +27,15 @@ func NewCategorySvc() CategoryService {
 	return &CategorySvc{repo: repositories.NewCategoryRepository()}
 }
 
-func (ps *CategorySvc) GetCategories(c *gin.Context) {
-	categories, err := ps.repo.GetCategories()
+func (ps *CategorySvc) GetCategories(ctx context.Context, query models.CategoryQueryRequest) (*[]models.CategoryResponse, error) {
+	categories, err := ps.repo.GetCategories(query)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
+		log.Println("Failed to get categories: ", err)
+		return nil, err
 	}
-	c.JSON(http.StatusOK, utils.Response(categories, "ok", ""))
+
+	return categories, nil
+
 }
 
 func (ps *CategorySvc) GetCategoryByID(c *gin.Context) {

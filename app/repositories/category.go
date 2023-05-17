@@ -8,7 +8,7 @@ import (
 )
 
 type CategoryRepository interface {
-	GetCategories() (*[]models.CategoryResponse, error)
+	GetCategories(query models.CategoryQueryRequest) (*[]models.CategoryResponse, error)
 	GetCategoryByID(uuid string) (*models.CategoryResponse, error)
 	CreateCategory(req *models.CategoryRequest) (*models.CategoryResponse, error)
 	UpdateCategory(uuid string, req *models.CategoryRequest) (*models.CategoryResponse, error)
@@ -22,7 +22,7 @@ func NewCategoryRepository() CategoryRepository {
 	return &CategoryRepo{db: config.DB}
 }
 
-func (cr *CategoryRepo) GetCategories() (*[]models.CategoryResponse, error) {
+func (cr *CategoryRepo) GetCategories(query models.CategoryQueryRequest) (*[]models.CategoryResponse, error) {
 	var categories []models.Category
 	if err := cr.db.Find(&categories).Error; err != nil {
 		return nil, err

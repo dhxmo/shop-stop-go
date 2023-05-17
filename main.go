@@ -13,17 +13,15 @@ import (
 	"syscall"
 	"time"
 
+	app "github.com/dhxmo/shop-stop-go/app"
 	route "github.com/dhxmo/shop-stop-go/app/routes"
 	config "github.com/dhxmo/shop-stop-go/config"
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	config.Migrate()
-
-	engine := gin.Default()
-
-	route.Routes(engine)
+	container := app.BuildContainer()
+	engine := route.InitGinEngine(container)
 
 	srv := &http.Server{
 		Addr:    ":8080",

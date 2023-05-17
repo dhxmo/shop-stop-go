@@ -1,6 +1,7 @@
-package service
+package services
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/dhxmo/shop-stop-go/app/models"
@@ -11,7 +12,7 @@ import (
 )
 
 type ProductService interface {
-	GetProducts(c *gin.Context)
+	GetProducts(ctx context.Context, params models.ProductQueryParams) (*[]models.ProductResponse, error)
 	GetProductByID(c *gin.Context)
 	CreateProduct(c *gin.Context)
 	UpdateProduct(c *gin.Context)
@@ -26,14 +27,13 @@ func NewProductSvc() ProductService {
 	return &ProductSvc{repo: repositories.NewProductRepository()}
 }
 
-func (ps *ProductSvc) GetProducts(c *gin.Context) {
+func (ps *ProductSvc) GetProducts(ctx context.Context, params models.ProductQueryParams) (*[]models.ProductResponse, error) {
 	products, err := ps.repo.GetProducts()
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
+		ctx.Err()
+		return nil, err
 	}
-	c.JSON(http.StatusOK, utils.Response(products, "ok", ""))
+	return products, nil
 }
 
 func (ps *ProductSvc) GetProductByID(c *gin.Context) {
