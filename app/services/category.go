@@ -3,20 +3,16 @@ package services
 import (
 	"context"
 	"log"
-	"net/http"
 
 	"github.com/dhxmo/shop-stop-go/app/models"
 	"github.com/dhxmo/shop-stop-go/app/repositories"
-	"github.com/dhxmo/shop-stop-go/pkg/utils"
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator"
 )
 
 type CategoryService interface {
 	GetCategories(ctx context.Context, query models.CategoryQueryRequest) (*[]models.CategoryResponse, error)
-	GetCategoryByID(c *gin.Context)
-	CreateCategory(c *gin.Context)
-	UpdateCategory(c *gin.Context)
+	GetCategoryByID(ctx context.Context, categoryID string) (*models.CategoryResponse, error)
+	CreateCategory(ctx context.Context, query *models.CategoryRequest) (*models.CategoryResponse, error)
+	UpdateCategory(ctx context.Context, uuid string, query *models.CategoryRequest) (*models.CategoryResponse, error)
 }
 
 type CategorySvc struct {
@@ -38,62 +34,31 @@ func (ps *CategorySvc) GetCategories(ctx context.Context, query models.CategoryQ
 
 }
 
-func (ps *CategorySvc) GetCategoryByID(c *gin.Context) {
-	categoryID := c.Param("uuid")
-
+func (ps *CategorySvc) GetCategoryByID(ctx context.Context, categoryID string) (*models.CategoryResponse, error) {
 	category, err := ps.repo.GetCategoryByID(categoryID)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
+		log.Println("Failed to get categories: ", err)
+		return nil, err
 	}
-	c.JSON(http.StatusOK, utils.Response(category, "ok", ""))
+	return category, nil
 }
 
-func (ps *CategorySvc) CreateCategory(c *gin.Context) {
-	var req models.CategoryRequest
-
-	if err := c.Bind(&req); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	validate := validator.New()
-	err := validate.Struct(req)
-
+func (ps *CategorySvc) CreateCategory(ctx context.Context, query *models.CategoryRequest) (*models.CategoryResponse, error) {
+	category, err := ps.repo.CreateCategory(query)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
+		log.Println("Failed to create category", err.Error())
+		return nil, err
 	}
 
-	category, err := ps.repo.CreateCategory(&req)
-	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
-	}
-
-	c.JSON(http.StatusOK, utils.Response(category, "OK", ""))
+	return category, nil
 }
 
-func (ps *CategorySvc) UpdateCategory(c *gin.Context) {
-	uuid := c.Param("uuid")
-	var req models.CategoryRequest
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	category, err := ps.repo.UpdateCategory(uuid, &req)
+func (ps *CategorySvc) UpdateCategory(ctx context.Context, uuid string, query *models.CategoryRequest) (*models.CategoryResponse, error) {
+	category, err := ps.repo.UpdateCategory(uuid, query)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
+		log.Println("Failed to update category", err.Error())
+		return nil, err
 	}
 
-	c.JSON(http.StatusOK, utils.Response(category, "OK", ""))
+	return category, nil
 }

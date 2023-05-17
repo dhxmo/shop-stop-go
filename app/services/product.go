@@ -2,21 +2,17 @@ package services
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/dhxmo/shop-stop-go/app/models"
 	"github.com/dhxmo/shop-stop-go/app/repositories"
-	"github.com/dhxmo/shop-stop-go/pkg/utils"
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator"
 )
 
 type ProductService interface {
 	GetProducts(ctx context.Context, params models.ProductQueryParams) (*[]models.ProductResponse, error)
-	GetProductByID(c *gin.Context)
-	CreateProduct(c *gin.Context)
-	UpdateProduct(c *gin.Context)
-	GetProductByCategory(c *gin.Context)
+	GetProductByID(ctx context.Context, productID string) (*models.ProductResponse, error)
+	CreateProduct(ctx context.Context, req *models.ProductRequest) (*models.ProductResponse, error)
+	UpdateProduct(ctx context.Context, uuid string, req *models.ProductRequest) (*models.ProductResponse, error)
+	GetProductByCategory(ctx context.Context, categoryUUID string, active bool) (*[]models.ProductResponse, error)
 }
 
 type ProductSvc struct {
@@ -36,80 +32,40 @@ func (ps *ProductSvc) GetProducts(ctx context.Context, params models.ProductQuer
 	return products, nil
 }
 
-func (ps *ProductSvc) GetProductByID(c *gin.Context) {
-	productID := c.Param("uuid")
-
+func (ps *ProductSvc) GetProductByID(ctx context.Context, productID string) (*models.ProductResponse, error) {
 	product, err := ps.repo.GetProductByID(productID)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
+		ctx.Err()
+		return nil, err
 	}
-	c.JSON(http.StatusOK, utils.Response(product, "ok", ""))
+	return product, nil
 }
 
-func (ps *ProductSvc) CreateProduct(c *gin.Context) {
-	var req models.ProductRequest
-
-	if err := c.Bind(&req); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	validate := validator.New()
-	err := validate.Struct(req)
-
+func (ps *ProductSvc) CreateProduct(ctx context.Context, req *models.ProductRequest) (*models.ProductResponse, error) {
+	product, err := ps.repo.CreateProduct(req)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
+		ctx.Err()
+		return nil, err
 	}
-
-	product, err := ps.repo.CreateProduct(&req)
-	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
-	}
-
-	c.JSON(http.StatusOK, utils.Response(product, "OK", ""))
+	return product, nil
 }
 
-func (ps *ProductSvc) UpdateProduct(c *gin.Context) {
-	uuid := c.Param("uuid")
-	var req models.ProductRequest
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	products, err := ps.repo.UpdateProduct(uuid, &req)
+func (ps *ProductSvc) UpdateProduct(ctx context.Context, uuid string, req *models.ProductRequest) (*models.ProductResponse, error) {
+	prod, err := ps.repo.UpdateProduct(uuid, req)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
+		ctx.Err()
+		return nil, err
 	}
+	return prod, nil
 
-	c.JSON(http.StatusOK, utils.Response(products, "OK", ""))
 }
 
-func (ps *ProductSvc) GetProductByCategory(c *gin.Context) {
-	categoryUUID := c.Param("uuid")
-	activeParam := c.Query("active")
-	active := true
-	if activeParam == "false" {
-		active = false
-	}
-
+func (ps *ProductSvc) GetProductByCategory(ctx context.Context, categoryUUID string, active bool) (*[]models.ProductResponse, error) {
 	products, err := ps.repo.GetProductByCategory(categoryUUID, active)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
+		ctx.Err()
+		return nil, err
 	}
+	return products, nil
 
-	c.JSON(http.StatusOK, utils.Response(products, "OK", ""))
 }
