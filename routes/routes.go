@@ -19,6 +19,15 @@ func Routes(e *gin.Engine) {
 	v1 := e.Group("api/v1")
 	v1.Use(middlewares.JWT())
 	v1.Use(middlewares.ErrorHandler())
+
+	// config, err := config.LoadConfig(".")
+	// if err != nil {
+	// 	log.Fatal("cannot load config:", err)
+	// }
+
+	// if config.Enable {
+	// 	v1.Use(middlewares.Cached())
+	// }
 	{
 		productService := service.NewProductSvc()
 		v1.GET("/products", productService.GetProducts)

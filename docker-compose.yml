@@ -11,11 +11,11 @@ services:
     # volumes:
     #   - db:/var/lib/postgresql/data
   cache:
-    image: redis:6.2-alpine
-    restart: always
+    image: 'bitnami/redis:latest'
     ports:
       - '6379:6379'
-    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
     volumes:
       - cache:/data
 volumes:

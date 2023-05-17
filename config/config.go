@@ -10,6 +10,12 @@ type Config struct {
 	DBDriver      string `mapstructure:"DB_DRIVER"`
 	DBSource      string `mapstructure:"DB_SOURCE"`
 	ServerAddress string `mapstructure:"SERVER_ADDRESS"`
+	Enable        bool   `mapstructure:"ENABLE"`
+	Host          string `mapstructure:"REDIS_HOST"`
+	Port          int    `mapstructure:"REDIS_PORT"`
+	Password      string `mapstructure:"PASSWORD"`
+	Database      int    `mapstructure:"DATABASE"`
+	ExpiryTime    int    `mapstructure:"EXPIRY_TIME"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
