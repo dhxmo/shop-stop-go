@@ -14,7 +14,7 @@ import (
 func Routes(e *gin.Engine, container *dig.Container) error {
 	err := container.Invoke(func(
 		category *controllers.Category,
-		// product *api.Product,
+		product *controllers.Product,
 	) error {
 		auth := e.Group("auth")
 		{
@@ -39,7 +39,7 @@ func Routes(e *gin.Engine, container *dig.Container) error {
 		}
 		{
 			// productService := service.NewProductSvc()
-			// v1.GET("/products", productService.GetProducts)
+			v1.GET("/products", product.GetProducts)
 			// v1.GET("/products/:uuid", productService.GetProductByID)
 			// v1.POST("/product", productService.CreateProduct)
 			// v1.PUT("/product/:uuid", productService.UpdateProduct)

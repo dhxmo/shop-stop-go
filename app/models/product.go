@@ -33,3 +33,7 @@ func (p *Product) BeforeCreate(tx *gorm.DB) (err error) {
 	p.UUID = uuid.New().String()
 	return nil
 }
+
+type ProductQueryParams struct {
+	Active string `json:"active,omitempty" form:"active"`
+}
