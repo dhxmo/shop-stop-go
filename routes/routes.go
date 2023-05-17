@@ -45,5 +45,23 @@ func Routes(e *gin.Engine) {
 		v1.GET("/categories/:uuid/products", productService.GetProductByCategory)
 		v1.PUT("/categories/:uuid", categoryService.UpdateCategory)
 
+		quantityService := service.NewQuantitySvc()
+		v1.GET("/quantities", quantityService.GetQuantities)
+		v1.POST("/quantities", quantityService.CreateQuantity)
+		v1.GET("/quantities/:uuid", quantityService.GetQuantityByID)
+		v1.PUT("/quantities/:uuid", quantityService.UpdateQuantity)
+
+		checkoutService := service.NewCheckoutSvc()
+		v1.GET("/checkout", checkoutService.GetCheckouts)
+		v1.POST("/checkout", checkoutService.CreateCheckout)
+		v1.GET("/checkout/:uuid", checkoutService.GetCheckoutByID)
+		v1.PUT("/checkout/:uuid", checkoutService.UpdateCheckout)
+
+		orderService := service.NewOrderSvc()
+		v1.GET("/orders", orderService.GetOrders)
+		v1.POST("/orders", orderService.CreateOrder)
+		v1.GET("/orders/:uuid", orderService.GetOrderByID)
+		v1.PUT("/orders/:uuid", orderService.UpdateOrder)
+
 	}
 }
