@@ -27,11 +27,6 @@ type CheckoutOrderBodyRequest struct {
 	Orders []Order `json:"lines,omitempty" validate:"required"`
 }
 
-// type CheckoutOrderQueryRequest struct {
-// 	Code   string `json:"code,omitempty" form:"code"`
-// 	Status string `json:"status,omitempty" form:"active"`
-// }
-
 func (c *CheckoutOrder) BeforeCreate(tx *gorm.DB) (err error) {
 	c.UUID = uuid.New().String()
 	return nil
