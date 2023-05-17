@@ -1,20 +1,17 @@
 package services
 
 import (
-	"net/http"
+	"context"
 
 	"github.com/dhxmo/shop-stop-go/app/models"
 	"github.com/dhxmo/shop-stop-go/app/repositories"
-	"github.com/dhxmo/shop-stop-go/pkg/utils"
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator"
 )
 
 type OrderService interface {
-	GetOrders(c *gin.Context)
-	GetOrderByID(c *gin.Context)
-	CreateOrder(c *gin.Context)
-	UpdateOrder(c *gin.Context)
+	GetOrders(ctx context.Context) (*[]models.OrderResponse, error)
+	GetOrderByID(ctx context.Context, orderID string) (*models.OrderResponse, error)
+	CreateOrder(ctx context.Context, req *models.OrderRequest) (*models.OrderResponse, error)
+	UpdateOrder(ctx context.Context, uuid string, req *models.OrderRequest) (*models.OrderResponse, error)
 }
 
 type OrderSvc struct {
@@ -25,72 +22,39 @@ func NewOrderSvc() OrderService {
 	return &OrderSvc{repo: repositories.NewOrderRepository()}
 }
 
-func (os *OrderSvc) GetOrders(c *gin.Context) {
+func (os *OrderSvc) GetOrders(ctx context.Context) (*[]models.OrderResponse, error) {
 	orders, err := os.repo.GetOrders()
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
+		ctx.Err()
+		return nil, err
 	}
-	c.JSON(http.StatusOK, utils.Response(orders, "ok", ""))
+	return orders, nil
 }
 
-func (os *OrderSvc) GetOrderByID(c *gin.Context) {
-	orderID := c.Param("uuid")
-
+func (os *OrderSvc) GetOrderByID(ctx context.Context, orderID string) (*models.OrderResponse, error) {
 	order, err := os.repo.GetOrderByID(orderID)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
+		ctx.Err()
+		return nil, err
 	}
-	c.JSON(http.StatusOK, utils.Response(order, "ok", ""))
+	return order, nil
 }
 
-func (os *OrderSvc) CreateOrder(c *gin.Context) {
-	var req models.OrderRequest
-
-	if err := c.Bind(&req); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	validate := validator.New()
-	err := validate.Struct(req)
-
+func (os *OrderSvc) CreateOrder(ctx context.Context, req *models.OrderRequest) (*models.OrderResponse, error) {
+	order, err := os.repo.CreateOrder(req)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
+		ctx.Err()
+		return nil, err
 	}
-
-	order, err := os.repo.CreateOrder(&req)
-	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
-	}
-
-	c.JSON(http.StatusOK, utils.Response(order, "OK", ""))
+	return order, nil
 }
 
-func (os *OrderSvc) UpdateOrder(c *gin.Context) {
-	uuid := c.Param("uuid")
-	var req models.OrderRequest
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	orders, err := os.repo.UpdateOrder(uuid, &req)
+func (os *OrderSvc) UpdateOrder(ctx context.Context, uuid string, req *models.OrderRequest) (*models.OrderResponse, error) {
+	order, err := os.repo.UpdateOrder(uuid, req)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
+		ctx.Err()
+		return nil, err
 	}
+	return order, nil
 
-	c.JSON(http.StatusOK, utils.Response(orders, "OK", ""))
 }

@@ -12,12 +12,12 @@ import (
 )
 
 type Category struct {
-	Service services.CategoryService
+	service services.CategoryService
 }
 
 func NewCategoryController(service services.CategoryService) *Category {
 	return &Category{
-		Service: service,
+		service: service,
 	}
 }
 
@@ -30,7 +30,7 @@ func (category *Category) GetCategories(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	rs, err := category.Service.GetCategories(ctx, reqQuery)
+	rs, err := category.service.GetCategories(ctx, reqQuery)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
@@ -46,7 +46,7 @@ func (category *Category) GetCategoryByID(c *gin.Context) {
 	categoryId := c.Param("uuid")
 
 	ctx := c.Request.Context()
-	categ, err := category.Service.GetCategoryByID(ctx, categoryId)
+	categ, err := category.service.GetCategoryByID(ctx, categoryId)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
@@ -75,7 +75,7 @@ func (category *Category) CreateCategory(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	categories, err := category.Service.CreateCategory(ctx, &item)
+	categories, err := category.service.CreateCategory(ctx, &item)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
@@ -97,7 +97,7 @@ func (category *Category) UpdateCategory(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	categories, err := category.Service.UpdateCategory(ctx, uuid, &item)
+	categories, err := category.service.UpdateCategory(ctx, uuid, &item)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))

@@ -1,32 +1,28 @@
-package services
+package controllers
 
 import (
 	"net/http"
 
-	"github.com/dhxmo/shop-stop-go/app/models"
-	"github.com/dhxmo/shop-stop-go/app/repositories"
-	"github.com/dhxmo/shop-stop-go/pkg/utils"
+	models "github.com/dhxmo/shop-stop-go/app/models"
+	services "github.com/dhxmo/shop-stop-go/app/services"
+	utils "github.com/dhxmo/shop-stop-go/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
 )
 
-type CheckoutService interface {
-	GetCheckouts(c *gin.Context)
-	GetCheckoutByID(c *gin.Context)
-	CreateCheckout(c *gin.Context)
-	UpdateCheckout(c *gin.Context)
+type Checkout struct {
+	service services.CheckoutService
 }
 
-type CheckoutSvc struct {
-	repo repositories.CheckoutOrderRepository
+func NewCheckoutController(service services.CheckoutService) *Checkout {
+	return &Checkout{
+		service: service,
+	}
 }
 
-func NewCheckoutSvc() CheckoutService {
-	return &CheckoutSvc{repo: repositories.NewCheckoutOrderRepository()}
-}
-
-func (cs *CheckoutSvc) GetCheckouts(c *gin.Context) {
-	checkoutOrders, err := cs.repo.GetCheckoutOrders()
+func (cs *Checkout) GetCheckouts(c *gin.Context) {
+	ctx := c.Request.Context()
+	checkoutOrders, err := cs.service.GetCheckouts(ctx)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
@@ -35,10 +31,11 @@ func (cs *CheckoutSvc) GetCheckouts(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.Response(checkoutOrders, "ok", ""))
 }
 
-func (cs *CheckoutSvc) GetCheckoutByID(c *gin.Context) {
+func (cs *Checkout) GetCheckoutByID(c *gin.Context) {
 	checkoutOrdersID := c.Param("uuid")
+	ctx := c.Request.Context()
 
-	checkoutOrders, err := cs.repo.GetCheckoutOrderByID(checkoutOrdersID)
+	checkoutOrders, err := cs.service.GetCheckoutByID(ctx, checkoutOrdersID)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
@@ -47,7 +44,7 @@ func (cs *CheckoutSvc) GetCheckoutByID(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.Response(checkoutOrders, "ok", ""))
 }
 
-func (cs *CheckoutSvc) CreateCheckout(c *gin.Context) {
+func (cs *Checkout) CreateCheckout(c *gin.Context) {
 	var req models.CheckoutOrderBodyRequest
 
 	if err := c.Bind(&req); err != nil {
@@ -64,8 +61,9 @@ func (cs *CheckoutSvc) CreateCheckout(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
 		return
 	}
+	ctx := c.Request.Context()
 
-	checkout, err := cs.repo.CreateCheckoutOrder(&req)
+	checkout, err := cs.service.CreateCheckout(ctx, &req)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
@@ -75,7 +73,7 @@ func (cs *CheckoutSvc) CreateCheckout(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.Response(checkout, "OK", ""))
 }
 
-func (cs *CheckoutSvc) UpdateCheckout(c *gin.Context) {
+func (cs *Checkout) UpdateCheckout(c *gin.Context) {
 	uuid := c.Param("uuid")
 	var req models.CheckoutOrderBodyRequest
 
@@ -84,8 +82,9 @@ func (cs *CheckoutSvc) UpdateCheckout(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	ctx := c.Request.Context()
 
-	checkout, err := cs.repo.UpdateCheckoutOrder(uuid, &req)
+	checkout, err := cs.service.UpdateCheckout(ctx, uuid, &req)
 	if err != nil {
 		c.Error(err)
 		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))

@@ -1,20 +1,17 @@
 package services
 
 import (
-	"net/http"
+	"context"
 
 	"github.com/dhxmo/shop-stop-go/app/models"
 	"github.com/dhxmo/shop-stop-go/app/repositories"
-	"github.com/dhxmo/shop-stop-go/pkg/utils"
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator"
 )
 
 type QuantityService interface {
-	GetQuantities(c *gin.Context)
-	GetQuantityByID(c *gin.Context)
-	CreateQuantity(c *gin.Context)
-	UpdateQuantity(c *gin.Context)
+	GetQuantities(ctx context.Context) (*[]models.QuantityResponse, error)
+	GetQuantityByID(ctx context.Context, quantitiesID string) (*models.QuantityResponse, error)
+	CreateQuantity(ctx context.Context, req *models.QuantityBodyRequest) (*models.QuantityResponse, error)
+	UpdateQuantity(ctx context.Context, uuid string, req *models.QuantityBodyRequest) (*models.QuantityResponse, error)
 }
 
 type QuantitySvc struct {
@@ -25,72 +22,39 @@ func NewQuantitySvc() QuantityService {
 	return &QuantitySvc{repo: repositories.NewQuantityRepository()}
 }
 
-func (qs *QuantitySvc) GetQuantities(c *gin.Context) {
+func (qs *QuantitySvc) GetQuantities(ctx context.Context) (*[]models.QuantityResponse, error) {
 	quantities, err := qs.repo.GetQuantities()
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
+		ctx.Err()
+		return nil, err
 	}
-	c.JSON(http.StatusOK, utils.Response(quantities, "ok", ""))
+	return quantities, nil
 }
 
-func (qs *QuantitySvc) GetQuantityByID(c *gin.Context) {
-	quantitesID := c.Param("uuid")
-
-	quantity, err := qs.repo.GetQuantityByID(quantitesID)
+func (qs *QuantitySvc) GetQuantityByID(ctx context.Context, quantitiesID string) (*models.QuantityResponse, error) {
+	quantity, err := qs.repo.GetQuantityByID(quantitiesID)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
+		ctx.Err()
+		return nil, err
 	}
-	c.JSON(http.StatusOK, utils.Response(quantity, "ok", ""))
+	return quantity, nil
+
 }
 
-func (qs *QuantitySvc) CreateQuantity(c *gin.Context) {
-	var req models.QuantityBodyRequest
-
-	if err := c.Bind(&req); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	validate := validator.New()
-	err := validate.Struct(req)
-
+func (qs *QuantitySvc) CreateQuantity(ctx context.Context, req *models.QuantityBodyRequest) (*models.QuantityResponse, error) {
+	quantity, err := qs.repo.CreateQuantity(req)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
+		ctx.Err()
+		return nil, err
 	}
-
-	quantity, err := qs.repo.CreateQuantity(&req)
-	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
-	}
-
-	c.JSON(http.StatusOK, utils.Response(quantity, "OK", ""))
+	return quantity, nil
 }
 
-func (qs *QuantitySvc) UpdateQuantity(c *gin.Context) {
-	uuid := c.Param("uuid")
-	var req models.QuantityBodyRequest
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	quantity, err := qs.repo.UpdateQuantity(uuid, &req)
+func (qs *QuantitySvc) UpdateQuantity(ctx context.Context, uuid string, req *models.QuantityBodyRequest) (*models.QuantityResponse, error) {
+	quantity, err := qs.repo.UpdateQuantity(uuid, req)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusBadRequest, utils.Response(nil, err.Error(), ""))
-		return
+		ctx.Err()
+		return nil, err
 	}
-
-	c.JSON(http.StatusOK, utils.Response(quantity, "OK", ""))
+	return quantity, nil
 }
