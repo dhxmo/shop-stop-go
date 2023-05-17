@@ -40,16 +40,16 @@ func Routes(e *gin.Engine, container *dig.Container) error {
 		{
 			// productService := service.NewProductSvc()
 			v1.GET("/products", product.GetProducts)
-			// v1.GET("/products/:uuid", productService.GetProductByID)
-			// v1.POST("/product", productService.CreateProduct)
-			// v1.PUT("/product/:uuid", productService.UpdateProduct)
+			// v1.GET("/products/:uuid", product.GetProductByID)
+			// v1.POST("/product", product.CreateProduct)
+			// v1.PUT("/product/:uuid", product.UpdateProduct)
 
 			// categoryService := service.NewCategorySvc()
 			v1.GET("/categories", category.GetCategories)
-			// v1.POST("/categories", categoryService.CreateCategory)
-			// v1.GET("/categories/:uuid", categoryService.GetCategoryByID)
+			v1.POST("/categories", category.CreateCategory)
+			v1.GET("/categories/:uuid", category.GetCategoryByID)
 			// v1.GET("/categories/:uuid/products", productService.GetProductByCategory)
-			// v1.PUT("/categories/:uuid", categoryService.UpdateCategory)
+			v1.PUT("/categories/:uuid", category.UpdateCategory)
 
 			// quantityService := service.NewQuantitySvc()
 			// v1.GET("/quantities", quantityService.GetQuantities)
