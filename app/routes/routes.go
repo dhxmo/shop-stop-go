@@ -3,9 +3,9 @@ package routes
 import (
 	"log"
 
+	"github.com/dhxmo/shop-stop-go/app/middlewares"
+	service "github.com/dhxmo/shop-stop-go/app/services"
 	"github.com/dhxmo/shop-stop-go/config"
-	"github.com/dhxmo/shop-stop-go/middlewares"
-	service "github.com/dhxmo/shop-stop-go/services"
 	"github.com/gin-gonic/gin"
 )
 

@@ -3,8 +3,8 @@ package repositories
 import (
 	"errors"
 
+	"github.com/dhxmo/shop-stop-go/app/models"
 	"github.com/dhxmo/shop-stop-go/config"
-	"github.com/dhxmo/shop-stop-go/models"
 	"github.com/dhxmo/shop-stop-go/pkg/utils"
 	"github.com/jinzhu/copier"
 	"github.com/jinzhu/gorm"

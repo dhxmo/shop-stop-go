@@ -13,8 +13,8 @@ import (
 	"syscall"
 	"time"
 
+	route "github.com/dhxmo/shop-stop-go/app/routes"
 	config "github.com/dhxmo/shop-stop-go/config"
-	route "github.com/dhxmo/shop-stop-go/routes"
 	"github.com/gin-gonic/gin"
 )
 

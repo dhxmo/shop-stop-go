@@ -3,9 +3,9 @@ package service
 import (
 	"net/http"
 
-	"github.com/dhxmo/shop-stop-go/models"
+	"github.com/dhxmo/shop-stop-go/app/models"
+	"github.com/dhxmo/shop-stop-go/app/repositories"
 	"github.com/dhxmo/shop-stop-go/pkg/utils"
-	"github.com/dhxmo/shop-stop-go/repositories"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
 )

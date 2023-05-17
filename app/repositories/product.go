@@ -1,8 +1,8 @@
 package repositories
 
 import (
+	"github.com/dhxmo/shop-stop-go/app/models"
 	"github.com/dhxmo/shop-stop-go/config"
-	"github.com/dhxmo/shop-stop-go/models"
 	"github.com/jinzhu/copier"
 	"github.com/jinzhu/gorm"
 )
